@@ -1,0 +1,24 @@
+{
+  "Ripples": {
+		"name": "Ripples",
+		"description": "Ripples is a small collection of utility functions governed by a loose pattern. It takes a few ideas from React such as unidirectional dataflow, and utilizing a dispatcher. Use it for projects too small for React and too large for vanilla JavaScript.",
+		"homepage": "",
+		"examples": [{
+			"name": "Example",
+			"url": "examples/ripples"
+		}],
+		"link_groups": [{
+			"heading": "Resources",
+			"links": [{
+				"name": "Tutorial",
+				"url": ""
+			}]
+		}, {
+			"heading": "Contact The Author",
+			"links": [{
+				"name": "",
+				"url": ""
+			}]
+		}]
+	}
+}
