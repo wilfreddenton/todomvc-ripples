@@ -3,12 +3,12 @@
   var Ripples = function (initialState, setStateCallback) {
     this.state = initialState;
     this.events = {};
-    this.subscriptions = {};
+    this.ripples = {};
     this.setStateCallback = setStateCallback;
     for (var key in state) {
       var eventName = 'update' + key;
       this.events[eventName] = new Event(eventName);
-      this.subscriptions[eventName] = [];
+      this.ripples[eventName] = [];
     }
   }
   Ripples.prototype.setState = function (obj) {
@@ -16,7 +16,7 @@
       if (obj.hasOwnProperty(key)) {
         ripples.state[key] = obj[key];
         var eventName = 'update' + key;
-        this.subscriptions[eventName].forEach(function (ele) {
+        this.ripples[eventName].forEach(function (ele) {
           ele.dispatchEvent(this.events[eventName]);
         }.bind(this));
       }
@@ -24,7 +24,7 @@
     if (typeof this.setStateCallback === 'function')
       this.setStateCallback();
   }
-  Ripples.prototype.subscribe = function (events, elements, handler) {
+  Ripples.prototype.ripple = function (events, elements, handler) {
     if (!Array.isArray(events))
       events = [events];
     if (!Array.isArray(elements))
@@ -32,7 +32,7 @@
     events.forEach(function (event) {
       elements.forEach(function (element) {
         element.addEventListener(event, handler);
-        this.subscriptions[event].push(element);
+        this.ripples[event].push(element);
       }.bind(this));
     }.bind(this));
   }
@@ -100,7 +100,7 @@
       ['span', {}, phrase]
     ];
   }
-  var listHandler = function () {
+  var listReaction = function () {
     var filter = ripples.state.filter;
     if (filter === 0) {
       var template = ripples.state.todos.map(todoTemplate);
@@ -116,7 +116,7 @@
     refs.list.innerHTML = '';
     refs.list.appendChild(newList);
   }
-  var displayHandler = function () {
+  var displayReaction = function () {
     var len = ripples.state.todos.length;
     var display = this.style.display;
     if (len === 0 && display !== 'none') {
@@ -185,7 +185,7 @@
       break;
     }
   }
-  var countHandler = function () {
+  var countReaction = function () {
     var active = ripples.state.todos.filter(function (todo) {
       return !todo.completed;
     });
@@ -224,7 +224,7 @@
       }
     });
   }
-  var selectedFilterHandler = function (e) {
+  var selectedFilterReaction = function (e) {
     var i = 0;
     var anchor = this.querySelector('a');
     var node = this;
@@ -236,7 +236,7 @@
       anchor.classList.remove('selected');
     }
   }
-  var highlightToggleHandler = function () {
+  var highlightToggleReaction = function () {
     var todos = ripples.state.todos;
     var completed = todos.filter(function (todo) {
       return todo.completed;
@@ -256,11 +256,11 @@
       ripples.setState({todos: newTodos});
     }.bind(this));
   }
-  ripples.subscribe(['updatetodos', 'updatefilter'], refs.list, listHandler);
-  ripples.subscribe('updatetodos', [refs.main, refs.footer], displayHandler);
-  ripples.subscribe('updatetodos', refs.counter, countHandler);
-  ripples.subscribe('updatetodos', refs.toggle, highlightToggleHandler);
-  ripples.subscribe('updatefilter', [refs.all, refs.active, refs.completed], selectedFilterHandler);
+  ripples.ripple(['updatetodos', 'updatefilter'], refs.list, listReaction);
+  ripples.ripple('updatetodos', [refs.main, refs.footer], displayReaction);
+  ripples.ripple('updatetodos', refs.counter, countReaction);
+  ripples.ripple('updatetodos', refs.toggle, highlightToggleReaction);
+  ripples.ripple('updatefilter', [refs.all, refs.active, refs.completed], selectedFilterReaction);
   refs.list.addEventListener('click', listActionHandler);
   refs.clear.addEventListener('click', clearHandler);
   refs.input.addEventListener('keyup', inputHandler);
