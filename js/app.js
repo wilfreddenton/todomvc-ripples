@@ -208,21 +208,21 @@
     }
   }
   var filterHandler = function (e) {
-    var target = e.target;
-    var path = target.href.match(/\/[^\/]*$/)[0];
-    switch (path) {
-    case '/active':
-      if (ripples.state.filter !== 1)
-        ripples.setState({filter: 1});
-      break;
-    case '/completed':
-      if (ripples.state.filter !== 2)
-        ripples.setState({filter: 2});
-      break;
-    default:
-      if (ripples.state.filter !== 0)
-        ripples.setState({filter: 0});
-    }
+    setTimeout(function() {
+      switch (window.location.hash) {
+      case '#/active':
+        if (ripples.state.filter !== 1)
+          ripples.setState({filter: 1});
+        break;
+      case '#/completed':
+        if (ripples.state.filter !== 2)
+          ripples.setState({filter: 2});
+        break;
+      default:
+        if (ripples.state.filter !== 0)
+          ripples.setState({filter: 0});
+      }
+    });
   }
   var selectedFilterHandler = function (e) {
     var i = 0;
@@ -268,6 +268,7 @@
   refs.active.addEventListener('click', filterHandler);
   refs.completed.addEventListener('click', filterHandler);
   refs.toggle.addEventListener('click', toggleHandler);
+  window.addEventListener('popstate', filterHandler);
   var data = localStorage.getItem('todos-ripples');
   if (data !== null) {
     data = JSON.parse(data);
@@ -275,4 +276,5 @@
   } else {
     ripples.setState({todos: [], filter: 0});
   }
+  filterHandler();
 })(window);
