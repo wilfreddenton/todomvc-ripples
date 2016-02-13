@@ -53,6 +53,7 @@
     }.bind(this));
     return docFrag;
   }
+  // Initialization
   var state = {
     todos: [],
     filter: 0,
@@ -80,6 +81,7 @@
     completed: filters[2],
     clear: document.querySelector('.clear-completed')
   }
+  // Templates
   var todoTemplate = function (todo) {
     var klass = todo.completed ? 'completed' : '';
     return (
@@ -100,6 +102,7 @@
       ['span', {}, phrase]
     ];
   }
+  // Reactions
   var listReaction = function () {
     var filter = ripples.state.filter;
     if (filter === 0) {
@@ -125,6 +128,38 @@
       this.style.display = 'block';
     }
   }
+  var countReaction = function () {
+    var active = ripples.state.todos.filter(function (todo) {
+      return !todo.completed;
+    });
+    var newCounter = ripples.render(counterTemplate(active.length));
+    refs.counter.innerHTML = '';
+    refs.counter.appendChild(newCounter);
+  }
+  var selectedFilterReaction = function (e) {
+    var i = 0;
+    var anchor = this.querySelector('a');
+    var node = this;
+    while (node = node.previousSibling)
+      if (node.nodeType === 1) i += 1;
+    if (i === ripples.state.filter && !anchor.classList.contains('selected')) {
+      anchor.classList.add('selected');
+    } else if (i !== ripples.state.filter && anchor.classList.contains('selected')) {
+      anchor.classList.remove('selected');
+    }
+  }
+  var highlightToggleReaction = function () {
+    var todos = ripples.state.todos;
+    var completed = todos.filter(function (todo) {
+      return todo.completed;
+    });
+    if (completed.length === todos.length && this.checked === false) {
+      this.checked = true;
+    } else if (completed.length !== todos.length && this.checked === true) {
+      this.checked = false;
+    }
+  }
+  // Handlers
   var dblClick = false;
   var clickTimeout = null;
   var listActionHandler = function (e) {
@@ -185,14 +220,6 @@
       break;
     }
   }
-  var countReaction = function () {
-    var active = ripples.state.todos.filter(function (todo) {
-      return !todo.completed;
-    });
-    var newCounter = ripples.render(counterTemplate(active.length));
-    refs.counter.innerHTML = '';
-    refs.counter.appendChild(newCounter);
-  }
   var clearHandler = function () {
     var newTodos = ripples.state.todos.filter(function (todo) {
       return !todo.completed;
@@ -224,29 +251,6 @@
       }
     });
   }
-  var selectedFilterReaction = function (e) {
-    var i = 0;
-    var anchor = this.querySelector('a');
-    var node = this;
-    while (node = node.previousSibling)
-      if (node.nodeType === 1) i += 1;
-    if (i === ripples.state.filter && !anchor.classList.contains('selected')) {
-      anchor.classList.add('selected');
-    } else if (i !== ripples.state.filter && anchor.classList.contains('selected')) {
-      anchor.classList.remove('selected');
-    }
-  }
-  var highlightToggleReaction = function () {
-    var todos = ripples.state.todos;
-    var completed = todos.filter(function (todo) {
-      return todo.completed;
-    });
-    if (completed.length === todos.length && this.checked === false) {
-      this.checked = true;
-    } else if (completed.length !== todos.length && this.checked === true) {
-      this.checked = false;
-    }
-  }
   var toggleHandler = function (e) {
     setTimeout(function() {
       var newTodos = ripples.state.todos.slice();
@@ -256,6 +260,7 @@
       ripples.setState({todos: newTodos});
     }.bind(this));
   }
+  // Main
   ripples.ripple(['updatetodos', 'updatefilter'], refs.list, listReaction);
   ripples.ripple('updatetodos', [refs.main, refs.footer], displayReaction);
   ripples.ripple('updatetodos', refs.counter, countReaction);
