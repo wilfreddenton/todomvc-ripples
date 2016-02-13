@@ -20,9 +20,9 @@
           ele.dispatchEvent(this.events[eventName]);
         }.bind(this));
       }
-      if (typeof this.setStateCallback === 'function')
-        this.setStateCallback();
     }
+    if (typeof this.setStateCallback === 'function')
+      this.setStateCallback();
   }
   Ripples.prototype.subscribe = function (events, elements, handler) {
     if (!Array.isArray(events))
