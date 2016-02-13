@@ -1,10 +1,10 @@
 (function (window) {
 	'use strict';
-  var Ripples = function (state, cb) {
-    this.state = state;
+  var Ripples = function (initialState, setStateCallback) {
+    this.state = initialState;
     this.events = {};
     this.subscriptions = {};
-    this.setStateCallback = cb;
+    this.setStateCallback = setStateCallback;
     for (var key in state) {
       var eventName = 'update' + key;
       this.events[eventName] = new Event(eventName);
