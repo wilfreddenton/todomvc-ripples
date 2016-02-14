@@ -11,11 +11,11 @@
       this.eventTargets[eventName] = [];
     }
   }
-  Ripples.prototype.setState = function (obj) {
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        ripples.state[key] = obj[key];
+  Ripples.prototype.setState = function (newState) {
+    for (var key in newState) {
+      if (newState.hasOwnProperty(key)) {
         var eventName = 'ripple' + key;
+        ripples.state[key] = newState[key];
         this.eventTargets[eventName].forEach(function (ele) {
           ele.dispatchEvent(this.events[eventName]);
         }.bind(this));
@@ -24,28 +24,28 @@
     if (typeof this.setStateCallback === 'function')
       this.setStateCallback();
   }
-  Ripples.prototype.ripple = function (stateKeys, elements, handler) {
+  Ripples.prototype.ripple = function (stateKeys, elements, reaction) {
     if (!Array.isArray(stateKeys))
       stateKeys = [stateKeys];
     if (!Array.isArray(elements))
       elements = [elements];
     stateKeys.forEach(function (key) {
+      var eventName = 'ripple' + key;
       elements.forEach(function (element) {
-        var eventName = 'ripple' + key;
-        element.addEventListener(eventName, handler);
+        element.addEventListener(eventName, reaction);
         this.eventTargets[eventName].push(element);
       }.bind(this));
     }.bind(this));
   }
-  Ripples.prototype.calm = function (stateKeys, elements, handler) {
+  Ripples.prototype.calm = function (stateKeys, elements, reaction) {
     if (!Array.isArray(stateKeys))
       stateKeys = [stateKeys];
     if (!Array.isArray(elements))
       elements = [elements];
     stateKeys.forEach(function (key) {
+      var eventName = 'ripple' + key;
       elements.forEach(function (element) {
-        var eventName = 'ripple' + key;
-        element.removeEventListener(eventName, handler);
+        element.removeEventListener(eventName, reaction);
         var i = this.eventTargets[eventName].indexOf(element);
         this.eventTargets[eventName].splice(i, 1);
       }.bind(this));
@@ -58,12 +58,10 @@
       var element = document.createElement(tag);
       for (var key in params)
         element[key] = params[key];
-      if (typeof children === 'object') {
+      if (Array.isArray(children)) {
         var childFrag = this.render(children);
         element.appendChild(childFrag);
-      } else {
-        element.innerHTML = children;
-      }
+      } else { element.innerHTML = children; }
       docFrag.appendChild(element);
     }.bind(this));
     return docFrag;
@@ -223,7 +221,7 @@
         }
         function submit(e) {
           if (event.which == 13 || event.keycode == 13)
-            stopediting();
+            stopEditing();
         }
         setTimeout(function () {
           window.addEventListener('click', detectClickOff);
@@ -239,13 +237,11 @@
     });
     ripples.setState({todos: newTodos});
   }
-  var inputHandler = function (e) {
-    if ((e.which == 13 || e.keycode == 13) && this.value !== '') {
-      var newTodo = {text: this.value.trim(), completed: false}
-      var newTodos = [newTodo].concat(ripples.state.todos);
-      ripples.setState({todos: newTodos});
-      this.value = '';
-    }
+  var enterHandler = function (e) {
+    var newTodo = {text: this.value.trim(), completed: false}
+    var newTodos = [newTodo].concat(ripples.state.todos);
+    ripples.setState({todos: newTodos});
+    this.value = '';
   }
   var filterHandler = function (e) {
     setTimeout(function() {
@@ -281,7 +277,7 @@
   ripples.ripple('filter', [refs.all, refs.active, refs.completed], selectedFilterReaction);
   refs.list.addEventListener('click', listActionHandler);
   refs.clear.addEventListener('click', clearHandler);
-  refs.input.addEventListener('keyup', inputHandler);
+  refs.input.addEventListener('change', enterHandler);
   refs.all.addEventListener('click', filterHandler);
   refs.active.addEventListener('click', filterHandler);
   refs.completed.addEventListener('click', filterHandler);
@@ -291,8 +287,6 @@
   if (data !== null) {
     data = JSON.parse(data);
     ripples.setState({todos: data.todos, filter: data.filter});
-  } else {
-    ripples.setState({todos: [], filter: 0});
-  }
+  } else { ripples.setState({todos: [], filter: 0}); }
   filterHandler();
 })(window);
