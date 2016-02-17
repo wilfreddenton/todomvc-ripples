@@ -52,6 +52,8 @@
     }.bind(this));
   }
   Ripples.prototype.render = function (template) {
+    if (typeof template[0] === 'string')
+      template = [template];
     var docFrag = document.createDocumentFragment();
     template.forEach(function (subTemp) {
       var tag = subTemp[0], params = subTemp[1], children = subTemp[2];
